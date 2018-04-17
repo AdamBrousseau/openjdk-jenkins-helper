@@ -86,7 +86,6 @@ stage('Pepare_Space_Monitoring_Jobs') {
                 }
 
                 setupParallelPipelines(
-                        timeOut,
                         machineName,
                         workspaceDirectory,
                         workspaceStatscmd,
@@ -127,7 +126,6 @@ def errorMessage(String machineName, String message) {
 }
 
 def setupParallelPipelines(
-        timeOut,
         machineName,
         workspaceDirectory,
         workspaceStatscmd,
@@ -137,7 +135,7 @@ def setupParallelPipelines(
 
     clones[machineName] = {
         try {
-            timeout(time: params.timeout as Integer, unit: 'HOURS') {
+            timeout(time: params.timeout as Integer, unit: 'MINUTES') {
                 node (machineName) 
                 {                    
                     String workspaceStats = sh (
