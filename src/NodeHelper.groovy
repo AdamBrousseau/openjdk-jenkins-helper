@@ -1227,4 +1227,38 @@ class  NodeHelper {
                 .findAll {it.isOnline() }
                 .size() > 0
     }
+
+    public String getHostName(String computerName){
+        def slave = Jenkins.getInstance().getSlave(computerName)
+
+        switch(slave.getLauncher().getClass()) {
+            case hudson.plugins.sshslaves.SSHLauncher:
+                return getHostNameSSH(slave)
+            break
+            case hudson.slaves.CommandLauncher:
+                return getHostNameCommand(slave)
+            default:
+                return "getHostName: Launcher Not Supported"
+            break
+        }
+    }
+
+    private String getHostNameSSH(Slave slaveName){
+        return slaveName.getLauncher().getHost()    
+    }
+
+    /**
+    * This gets the command line argument for how Jenkins connects to the slave. 
+    * This assumes that the command line contains a ssh command and it gets either the host name or ip address. 
+    * It then returns the last ip or hostname that gets caught in a regex
+    */
+    private String getHostNameCommand(Slave slaveName){
+        def launcherCommand  = slaveName.getLauncher().getCommand()
+        def hostMatch = (launcherCommand =~ /\w+@((?:\w||\.)+)/)
+        return hostMatch[hostMatch.getCount()-1][1]
+    }
+
+    public String getOfflineReason(String computerName){
+        return getComputer(computerName).getOfflineCauseReason()
+    }
 }
